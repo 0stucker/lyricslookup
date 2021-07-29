@@ -43,7 +43,7 @@ layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
           [sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Quit')]]
 
 # Create the window
-window = sg.Window('Yo', layout)
+window = sg.Window('Lyric Lookup', layout)
 
 # Display and interact with the Window using an Event Loop
 while True:
@@ -59,7 +59,5 @@ while True:
         songname = infolist[1]
         window['-BN-'](bandname)
         window['-SN-'](songname)
-        print(bandname)
-
 
 window.close()
