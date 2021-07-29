@@ -24,6 +24,8 @@ def songrefresh():
     for i in data['item']['album']['artists']:
          bandname= i['name']
     songname = data['item']['name']
+    songnameBEFORE = songname
+    bandnameBEFORE = bandname
     songname = songname.replace(" ", "")
     bandname = bandname.replace(" ", "")
     bandname = bandname.replace(bannedsymbols, "") #less lines 
@@ -32,12 +34,12 @@ def songrefresh():
     for c in songname:
          for c in bannedsymbols:
             songname = songname.replace(c, "")
-    return [bandname, songname]
+    return [bandname, songname, bandnameBEFORE, songnameBEFORE]
         
     
 
-bandname = '                                         ' #text output matches this length
-songname = '                                         '
+bandname = '                                                  ' #text output matches this length
+songname = '                                                              '
 layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
           [sg.Text(size=(40,1), key='-OUTPUT-')],
           [sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Quit')]]
@@ -57,7 +59,7 @@ while True:
         infolist = songrefresh()
         bandname = infolist[0]
         songname = infolist[1]
-        window['-BN-'](bandname)
-        window['-SN-'](songname)
+        window['-BN-'](infolist[2])
+        window['-SN-'](infolist[3])
 
 window.close()
