@@ -4,18 +4,21 @@ import string
 import spotipy.oauth2 as oauth2
 import spotipy.util as util
 import json
+import re
 import webbrowser
 from spotipy.oauth2 import SpotifyOAuth
-
+#edge cases determined by how azlyrics formats urls and artist names
+#doesn't work for artists that replace, '$uicideboy$', bands that start with 'the'
 scope = "user-library-read,user-read-currently-playing,user-read-playback-state,user-read-private"
 client_id = ''
-client_secret = '' #py2exe credentials?
+client_secret = ''  #learn how credentials work for sharing script
 redirect_uri = 'http://localhost:8080'
-bannedsymbols = '!,.@&)('
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
 
-def open_lyrics(bandname,songname): #genius api later? az missing tracks
-    webbrowser.open_new("https://www.azlyrics.com/lyrics/" + bandname + "/" + songname + ".html") 
+def open_lyrics(bandname,songname):                 #genius api later? az missing tracks
+    songname = re.sub('[\W_]+', '', songname)       #moving this here fixed display issues
+    bandname = re.sub('[\W_]+', '', bandname)
+    webbrowser.open_new("https://www.azlyrics.com/lyrics/" + bandname.lower() + "/" + songname.lower() + ".html") 
 
 def songrefresh():
     currentsong = sp.current_playback()
@@ -24,20 +27,8 @@ def songrefresh():
     for i in data['item']['album']['artists']:
          bandname= i['name']
     songname = data['item']['name']
-    songnameBEFORE = songname
-    bandnameBEFORE = bandname
-    songname = songname.replace(" ", "")
-    bandname = bandname.replace(" ", "")
-    bandname = bandname.replace(bannedsymbols, "") #less lines 
-    songname = songname.lower()
-    bandname = bandname.lower()
-    for c in songname:
-         for c in bannedsymbols:
-            songname = songname.replace(c, "")
-    return [bandname, songname, bandnameBEFORE, songnameBEFORE]
-        
-    
-
+    return [bandname, songname] 
+            
 bandname = '                                                  ' #text output matches this length
 songname = '                                                              '
 layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
@@ -59,7 +50,7 @@ while True:
         infolist = songrefresh()
         bandname = infolist[0]
         songname = infolist[1]
-        window['-BN-'](infolist[2])
-        window['-SN-'](infolist[3])
+        window['-BN-'](infolist[0])
+        window['-SN-'](infolist[1])
 
 window.close()
