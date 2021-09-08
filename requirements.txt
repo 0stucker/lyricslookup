@@ -1,0 +1,2 @@
+spotipy==2.18.0
+PySimpleGUI==4.47.0
