@@ -1,10 +1,12 @@
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import Button
 import spotipy
 import string
 import spotipy.oauth2 as oauth2
 import spotipy.util as util
 import json
 import re
+from pytube import Search
 from webbrowser import open_new
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -24,11 +26,17 @@ def songrefresh():
     window['-BN-'](bandname)      #update display
     window['-SN-'](songname)
     return [bandname, songname] 
+
+def download(bandname, songname):
+    s = Search(bandname +" "+ songname)
+    ytobj = s.results[0]
+    stream = ytobj.streams.get_by_itag(251)
+    stream.download()
         
 #doesn't work for artists that replace letters with symbols, '$uicideboy$', probably breaks with multiple artists
 scope = "user-library-read,user-read-currently-playing,user-read-playback-state,user-read-private"
 client_id = ''
-client_secret = ''  
+client_secret = ''  #learn how credentials work for sharing script
 redirect_uri = 'http://localhost:8080'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
 
@@ -36,7 +44,7 @@ bandname = '                                                  ' #text display ou
 songname = '                                                              '
 layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
           [sg.Text(size=(40,1), key='-OUTPUT-')],
-          [sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Quit')]]
+          [sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Download'), sg.Button('Quit')]]
 
 # Create the window
 window = sg.Window('Lyric Lookup', layout)
@@ -53,5 +61,7 @@ while True:
         infolist = songrefresh()
         bandname = infolist[0]
         songname = infolist[1]
+    elif event == 'Download':
+        download(bandname, songname)
 
 window.close()
