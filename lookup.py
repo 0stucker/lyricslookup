@@ -1,7 +1,6 @@
 import PySimpleGUI as sg
-from PySimpleGUI.PySimpleGUI import Button
+from PySimpleGUI.PySimpleGUI import Button, Output
 import spotipy
-import string
 import spotipy.oauth2 as oauth2
 import spotipy.util as util
 import json
@@ -10,7 +9,6 @@ from pytube import Search
 from webbrowser import open_new
 from spotipy.oauth2 import SpotifyOAuth
 
-<<<<<<< HEAD
 def auth(): 
     scope = "user-library-read,user-read-currently-playing"
     client_id = ''
@@ -19,8 +17,6 @@ def auth():
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
     return sp
 
-=======
->>>>>>> parent of 7914224 (added download path selection)
 def open_lyrics(bandname,songname):
     bandname = re.sub('The ', '', bandname)         
     songname = re.sub('[\W_]+', '', songname)       
@@ -38,41 +34,36 @@ def songrefresh():
     window['-SN-'](songname)
     return [bandname, songname] 
 
-def download(bandname, songname):
+def download(bandname, songname, filepath):
     s = Search(bandname +" "+ songname)
     ytobj = s.results[0]
     stream = ytobj.streams.get_by_itag(251)
-    stream.download()
+    stream.download(filepath)
+    return None
+
         
 #doesn't work for artists that replace letters with symbols, '$uicideboy$', probably breaks with multiple artists
-scope = "user-library-read,user-read-currently-playing,user-read-playback-state,user-read-private"
-client_id = ''
-client_secret = ''  #learn how credentials work for sharing script
-redirect_uri = 'http://localhost:8080'
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
 
-bandname = '                                                  ' #text display output matches this length
+sp = auth()
+bandname = '                                                  ' #text display output matches this length, can probably be fixed with size()
 songname = '                                                              '
 layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
-          [sg.Text(size=(40,1), key='-OUTPUT-')],
-          [sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Download'), sg.Button('Quit')]]
-
-# Create the window
+          [sg.In(key='-FILE-')],        
+          [sg.FolderBrowse("Download Location", target='-FILE-'),sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Download'), sg.Button('Quit')]]
 window = sg.Window('Lyric Lookup', layout)
 
 # Display and interact with the Window using an Event Loop
 while True:
     event, values = window.read()
-    # See if user wants to quit or window was closed
-    if event == sg.WINDOW_CLOSED or event == 'Quit':
-        break
-    elif event == 'Open Lyrics':
+    if event == 'Open Lyrics':
         open_lyrics(bandname,songname)
     elif event == 'Refresh':
         infolist = songrefresh()
         bandname = infolist[0]
         songname = infolist[1]
     elif event == 'Download':
-        download(bandname, songname)
-
+        filepath = values['-FILE-']
+        download(bandname, songname, filepath)
+    if event == sg.WINDOW_CLOSED or event == 'Quit':
+        break
 window.close()
