@@ -11,8 +11,8 @@ from spotipy.oauth2 import SpotifyOAuth
 
 def auth(): 
     scope = "user-library-read,user-read-currently-playing"
-    client_id = 'ba69e9bd27104901add50633e4353e84'
-    client_secret = '06f0c3d454964dd6a901b3a9ab70140b'  #learn how credentials work for sharing script
+    client_id = ''
+    client_secret = ''  #learn how credentials work for sharing script
     redirect_uri = 'http://localhost:8080'
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
     return sp
