@@ -8,11 +8,12 @@ import re
 from pytube import Search
 from webbrowser import open_new
 from spotipy.oauth2 import SpotifyOAuth
+import config
 
 def auth(): 
-    scope = "user-library-read,user-read-currently-playing"
-    client_id = ''
-    client_secret = ''  #learn how credentials work for sharing script
+    scope = config.scope
+    client_id = config.client_id
+    client_secret = config.client_secret  
     redirect_uri = 'http://localhost:8080'
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope))
     return sp
@@ -23,7 +24,7 @@ def open_lyrics(bandname,songname):
     bandname = re.sub('[\W_]+', '', bandname) 
     open_new("https://www.azlyrics.com/lyrics/" + bandname.lower() + "/" + songname.lower() + ".html")  #genius api later? az missing tracks
 
-def songrefresh():
+def songrefresh(window):
     currentsong = sp.current_playback()
     songdump = json.dumps(currentsong,indent=4)
     data = json.loads(songdump)
@@ -41,29 +42,31 @@ def download(bandname, songname, filepath):
     stream.download(filepath)
     return None
 
-        
-#doesn't work for artists that replace letters with symbols, '$uicideboy$', probably breaks with multiple artists
-
-sp = auth()
-bandname = '                                                  ' #text display output matches this length, can probably be fixed with size()
-songname = '                                                              '
-layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
+def interface_loop():
+    bandname = '                                                  ' #text display output matches this length, can probably be fixed with size()
+    songname = '                                                              '
+    layout = [[sg.Text(bandname, key ='-BN-')], [sg.Text(songname, key='-SN-')],
           [sg.In(key='-FILE-')],        
           [sg.FolderBrowse("Download Location", target='-FILE-'),sg.Button('Open Lyrics'), sg.Button('Refresh'), sg.Button('Download'), sg.Button('Quit')]]
-window = sg.Window('Lyric Lookup', layout)
+    window = sg.Window('Lyric Lookup', layout)
 
-# Display and interact with the Window using an Event Loop
-while True:
-    event, values = window.read()
-    if event == 'Open Lyrics':
-        open_lyrics(bandname,songname)
-    elif event == 'Refresh':
-        infolist = songrefresh()
-        bandname = infolist[0]
-        songname = infolist[1]
-    elif event == 'Download':
-        filepath = values['-FILE-']
-        download(bandname, songname, filepath)
-    if event == sg.WINDOW_CLOSED or event == 'Quit':
-        break
-window.close()
+    # Display and interact with the Window using an Event Loop
+    while True:
+        event, values = window.read()
+        if event == 'Open Lyrics':
+            open_lyrics(bandname,songname)
+        elif event == 'Refresh':
+            infolist = songrefresh(window)
+            bandname = infolist[0]
+            songname = infolist[1]
+        elif event == 'Download':
+            filepath = values['-FILE-']
+            download(bandname, songname, filepath)
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
+    window.close()
+            
+#doesn't work for artists that replace letters with symbols, '$uicideboy$', probably breaks with multiple artists
+if __name__ == "__main__":
+    sp = auth()
+    interface_loop()
