@@ -11,7 +11,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import config
 
 def auth(): 
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth( client_id=config.client_id, client_secret=config.client_secret, redirect_uri=config.redirect_uri, scope=config.scope))
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(config.client_id, config.client_secret, redirect_uri=config.redirect_uri, scope=config.scope))
     return sp
 
 def open_lyrics(bandname,songname):
