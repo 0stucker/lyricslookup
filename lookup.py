@@ -24,8 +24,7 @@ def songrefresh(window):
     currentsong = sp.current_playback()
     songdump = json.dumps(currentsong,indent=4)
     data = json.loads(songdump)
-    for i in data['item']['album']['artists']:
-         bandname= i['name']
+    bandname = data['item']['album']['artists'][0]['name']
     songname = data['item']['name']
     window['-BN-'](bandname)      #update display
     window['-SN-'](songname)
