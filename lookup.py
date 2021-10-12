@@ -21,14 +21,19 @@ def open_lyrics(bandname,songname):
     open_new("https://www.azlyrics.com/lyrics/" + bandname.lower() + "/" + songname.lower() + ".html")  #genius api later? az missing tracks
 
 def songrefresh(window):
-    currentsong = sp.current_playback()
-    songdump = json.dumps(currentsong,indent=4)
-    data = json.loads(songdump)
-    bandname = data['item']['album']['artists'][0]['name']
-    songname = data['item']['name']
-    window['-BN-'](bandname)      #update display
-    window['-SN-'](songname)
-    return [bandname, songname] 
+    try:
+        currentsong = sp.current_playback()
+        songdump = json.dumps(currentsong,indent=4)
+        data = json.loads(songdump)
+        bandname = data['item']['album']['artists'][0]['name']
+        songname = data['item']['name']
+        window['-BN-'](bandname)      #update display
+        window['-SN-'](songname)
+        return [bandname, songname] 
+    except:
+        window['-BN-']('no song detected')
+        return None, None
+
 
 def download(bandname, songname, filepath):
     s = Search(bandname +" "+ songname)
